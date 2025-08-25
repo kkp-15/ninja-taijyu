@@ -1,180 +1,205 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>毎日体重メモ — グラフ＆X投稿</title>
-<meta name="description" content="体重を毎日サクッと記録。直近60日の折れ線グラフと、X（Twitter）にワンタップ投稿。データは端末だけに保存されます。">
-<meta name="theme-color" content="#ffffff">
-<style>
-  :root{
-    --bg:#fff;--fg:#0f172a;--muted:#6b7280;--card:#f8fafc;--border:#e5e7eb;--accent:#2563eb;--accent-weak:#dbeafe;--danger:#ef4444;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{--bg:#0b0f14;--fg:#e5e7eb;--muted:#9ca3af;--card:#0f1720;--border:#1f2937;--accent:#60a5fa;--accent-weak:#0b274a;--danger:#f87171;}
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif}
-  .wrap{max-width:720px;margin:0 auto;padding:16px}
-  h1{font-size:1.25rem;margin:8px 0 2px}
-  p.lead{margin:0;color:var(--muted);font-size:.9rem}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin:14px 0}
-  label{font-size:.9rem;color:var(--muted)}
-  input{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:#fff0;color:var(--fg)}
-  input[type="date"]{padding:10px 12px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .row{display:flex;gap:8px;align-items:center}
-  .grow{flex:1}
-  .btn{display:inline-block;text-align:center;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-weight:700;cursor:pointer}
-  .btn:active{transform:translateY(1px)}
-  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .btn-ghost{background:var(--card)}
-  .tiny{font-size:.8rem;color:var(--muted)}
-  canvas{width:100%;height:120px;display:block}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:8px 6px;border-bottom:1px solid var(--border);font-size:.95rem}
-  th{text-align:left;color:var(--muted)}
-  td.right{text-align:right}
-  tr:hover{background:rgba(125,125,125,.06)}
-  footer{text-align:center;margin:18px 0 40px;color:var(--muted)}
-  #footer a{color:var(--accent);font-weight:700;text-decoration:none}
-  .badge{border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:.75rem}
-  .badge.up{color:#16a34a;border-color:#16a34a}
-  .badge.down{color:var(--danger);border-color:var(--danger)}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+
+  <!-- ====== SEO / OGP ====== -->
+  <title>体重メモ | weight.kkpwebninja.com</title>
+  <meta name="description" content="体重だけ毎日サッと記録。軽量グラフ＆X投稿。データは端末に保存されます。">
+  <link rel="canonical" href="https://weight.kkpwebninja.com/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="体重メモ | weight.kkpwebninja.com">
+  <meta property="og:description" content="体重だけ毎日サッと記録。軽量グラフ＆X投稿。">
+  <meta property="og:url" content="https://weight.kkpwebninja.com/">
+  <meta property="og:image" content="https://weight.kkpwebninja.com/weight.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="体重メモ | weight.kkpwebninja.com">
+  <meta name="twitter:description" content="体重だけ毎日サッと記録。軽量グラフ＆X投稿。">
+  <meta name="twitter:image" content="https://weight.kkpwebninja.com/weight.png">
+
+  <meta name="theme-color" content="#ffffff" />
+
+  <!-- ====== Google Analytics (GA4) ====== -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2LM85GJN0L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-2LM85GJN0L'); // いつものアナリティクス
+  </script>
+
+  <style>
+    :root{--bg:#fff;--fg:#0f172a;--muted:#6b7280;--card:#f8fafc;--border:#e5e7eb;--accent:#2563eb;--danger:#ef4444}
+    @media (prefers-color-scheme: dark){
+      :root{--bg:#0b0f14;--fg:#e5e7eb;--muted:#9ca3af;--card:#0f1720;--border:#1f2937;--accent:#60a5fa;--danger:#f87171}
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif}
+    .wrap{max-width:680px;margin:0 auto;padding:16px}
+    h1{font-size:1.2rem;margin:6px 0}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin:12px 0}
+    label{font-size:.9rem;color:var(--muted)}
+    input{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:#fff0;color:var(--fg)}
+    input[type="date"]{padding:10px 12px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .row{display:flex;gap:8px;align-items:center}
+    .grow{flex:1}
+    .btn{display:inline-block;width:100%;text-align:center;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-weight:700;cursor:pointer}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .btn-ghost{background:var(--card)}
+    .tiny{font-size:.8rem;color:var(--muted)}
+    canvas{width:100%;height:110px;display:block}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px 6px;border-bottom:1px solid var(--border);font-size:.95rem}
+    th{text-align:left;color:var(--muted)}
+    td.right{text-align:right}
+    tr:hover{background:rgba(125,125,125,.06)}
+    footer{text-align:center;margin:18px 0 40px;color:var(--muted)}
+    #footer a{color:var(--accent);font-weight:700;text-decoration:none}
+  </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>毎日体重メモ ⚖️</h1>
-      <p class="lead">体重だけをサクッと記録 → グラフ → Xに投稿。</p>
-    </header>
+<div class="wrap">
+  <h1>体重メモ ultra ⚖️</h1>
 
-    <!-- 入力 -->
-    <section class="card">
-      <div class="grid">
-        <div>
-          <label for="date">日付</label>
-          <input type="date" id="date">
-        </div>
-        <div>
-          <label for="weight">体重 (kg)</label>
-          <input type="number" id="weight" inputmode="decimal" step="0.1" placeholder="例: 68.5">
-        </div>
+  <!-- 入力 -->
+  <section class="card">
+    <div class="grid">
+      <div>
+        <label for="date">日付</label>
+        <input type="date" id="date">
       </div>
-      <div class="row" style="margin-top:10px;">
-        <button class="btn btn-primary grow" id="saveBtn">保存 / 更新</button>
-        <button class="btn btn-ghost" id="clearBtn">入力クリア</button>
+      <div>
+        <label for="weight">体重 (kg)</label>
+        <input type="number" id="weight" inputmode="decimal" step="0.1" placeholder="例: 68.5">
       </div>
-      <div class="tiny" id="hint"></div>
-    </section>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn btn-primary grow" id="saveBtn">保存</button>
+      <button class="btn btn-ghost" id="shareBtn" style="min-width:120px;">Xに投稿</button>
+    </div>
+    <div class="tiny" id="hint"></div>
+  </section>
 
-    <!-- グラフ -->
-    <section class="card">
-      <div class="row" style="justify-content:space-between;margin-bottom:6px;">
-        <div><strong>直近60日の推移</strong></div>
-        <div class="badge" id="trendBadge">±0.0kg / 7日</div>
-      </div>
-      <canvas id="chart"></canvas>
-      <div class="tiny" id="stats">平均: - / 最小: - / 最大: -</div>
-    </section>
+  <!-- グラフ -->
+  <section class="card">
+    <strong>グラフ（直近30）</strong>
+    <canvas id="chart"></canvas>
+  </section>
 
-    <!-- 履歴 -->
-    <section class="card">
-      <div class="row" style="justify-content:space-between;align-items:center;">
-        <strong>履歴</strong>
-        <div class="row">
-          <button class="btn" id="shareBtn" title="X（Twitter）に投稿">Xに投稿</button>
-          <button class="btn" id="csvBtn" title="CSV出力">CSV</button>
-          <button class="btn" id="delAllBtn" style="color:var(--danger)">全削除</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto;margin-top:8px;">
-        <table>
-          <thead><tr><th>日付</th><th class="right">体重</th><th>操作</th></tr></thead>
-          <tbody id="tbody"><!-- JSで描画 --></tbody>
-        </table>
-      </div>
-      <p class="tiny">行をタップでフォームへ読み込み／削除は右のボタン。</p>
-    </section>
+  <!-- 履歴（最小） -->
+  <section class="card">
+    <strong>履歴</strong>
+    <div style="overflow-x:auto;margin-top:8px;">
+      <table>
+        <thead><tr><th>日付</th><th class="right">体重</th><th>削除</th></tr></thead>
+        <tbody id="tbody"><!-- JSで描画 --></tbody>
+      </table>
+    </div>
+    <p class="tiny">行をタップすると入力欄に読み込みます。</p>
+  </section>
 
-    <footer>
-      <div class="tiny">データはこの端末にのみ保存されます（localStorage）。</div>
-      <div id="footer">
-        X <a href="https://x.com/kkp_webninja" target="_blank">@kkp_webninja</a><br>
-        🏯 <a href="https://kkpwebninja.com" target="_blank">web忍者の本丸</a><br>
-      </div>
-    </footer>
-  </div>
+  <footer>
+    <div class="tiny">データはこの端末だけに保存（localStorage）。</div>
+    <div id="footer">
+      X <a href="https://x.com/kkp_webninja" target="_blank">@kkp_webninja</a><br>
+      🏯 <a href="https://kkpwebninja.com" target="_blank">web忍者の本丸</a><br>
+    </div>
+  </footer>
+</div>
 
 <script>
-/* ===========================
-  毎日体重メモ — 実装概要
-  - localStorageキー: "weights"
-  - レコード: {date:"YYYY-MM-DD", weight:数値, id:UUID}
-  - 主機能: 追加/更新, 履歴一覧, キャンバス折れ線, 7日変化, X共有, CSV
-===========================*/
+/* ==================================================
+   体重メモ ultra（weight.kkpwebninja.com）
+   - 日本時間の今日: todayJP()
+   - localStorageキー: weights_ultra_v1
+   - 機能: 保存 / 30件グラフ(Canvas) / 履歴 / X投稿(intent)
+   - GAイベント: 保存・共有
+================================================== */
 
-// ---- ユーティリティ ----
-const $ = s=>document.querySelector(s);
-const $$ = s=>Array.from(document.querySelectorAll(s));
-const todayStr = ()=> new Date().toISOString().slice(0,10);
-const uuid = ()=> (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random());
-const num = v => { const n = Number(v); return isNaN(n)? null : n; };
-const fmt = (x, d=1) => (x==null? "-" : Number(x).toFixed(d));
+const $ = s => document.querySelector(s);
 
-// ---- ストレージ ----
-const load = ()=> { try{return JSON.parse(localStorage.getItem("weights")||"[]");}catch{return[]} };
-const save = arr => localStorage.setItem("weights", JSON.stringify(arr));
+// 日本時間で YYYY-MM-DD（UTCズレ対策）
+function todayJP(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 
-// ---- 要素 ----
+// 数値パース
+const num = v => { const n = Number(v); return isNaN(n) ? null : n; };
+
+// ストレージ（v1）
+const STORAGE_KEY = "weights_ultra_v1";
+const load = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; } };
+const save = arr => localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+const uuid = () => crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+
+// 要素
 const dateEl   = $("#date");
 const weightEl = $("#weight");
 const hintEl   = $("#hint");
 const tbody    = $("#tbody");
-const trendEl  = $("#trendBadge");
-const statsEl  = $("#stats");
 const canvas   = $("#chart");
 
-// 初期日付
-dateEl.value = todayStr();
+// 初期日付（日本時間）
+dateEl.value = todayJP();
 
-// 既存があれば今日の値をフォームに
-const initToday = ()=>{
-  const r = load().find(r=>r.date===dateEl.value);
-  if (r) weightEl.value = r.weight;
-};
-initToday();
+// 既に今日のデータがあれば表示
+{
+  const rec = load().find(r => r.date === dateEl.value);
+  if (rec) weightEl.value = rec.weight;
+}
 
-// ---- 保存/更新 ----
+// 保存
 $("#saveBtn").addEventListener("click", ()=>{
-  const d = dateEl.value || todayStr();
+  const d = dateEl.value || todayJP();
   const w = num(weightEl.value);
-  if (w==null){ hint("体重を入力してください。"); return; }
+  if (w == null){ hint("体重を入力してください。"); return; }
 
   const arr = load();
-  const idx = arr.findIndex(r=>r.date===d);
-  if (idx>=0) arr[idx] = {...arr[idx], weight:w};
-  else arr.push({id:uuid(), date:d, weight:w});
-  arr.sort((a,b)=> a.date<b.date?1:-1); // 新しい順
+  const i = arr.findIndex(r => r.date === d);
+  if (i >= 0) arr[i] = {...arr[i], weight: w};
+  else arr.push({id: uuid(), date: d, weight: w});
+  arr.sort((a,b)=> a.date < b.date ? 1 : -1); // 新→旧
   save(arr);
 
-  renderTable(); renderChart(); updateBadges();
+  renderTable(); renderChart();
   hint("保存しました。");
+
+  // GAイベント（任意）
+  if (typeof gtag === 'function') {
+    gtag('event','save_weight',{ value: Number(weightEl.value)||0, date: d });
+  }
 });
 
-// 入力クリア
-$("#clearBtn").addEventListener("click", ()=>{
-  weightEl.value = "";
+// Xに投稿（Twitter Intent）
+$("#shareBtn").addEventListener("click", ()=>{
+  const arr = load().sort((a,b)=> a.date < b.date ? 1 : -1); // 新→旧
+  if (!arr.length){ hint("まず体重を保存してください。"); return; }
+  const todayRec = arr[0];
+
+  const text = `今日の体重 ${todayRec.weight}kg（${todayRec.date}）\n#体重記録 #ダイエット`;
+  const shareUrl = "https://twitter.com/intent/tweet"
+    + "?text=" + encodeURIComponent(text)
+    + "&url="  + encodeURIComponent("https://weight.kkpwebninja.com/");
+
+  if (typeof gtag === 'function') {
+    gtag('event','share_on_x',{ date: todayRec.date, weight: todayRec.weight });
+  }
+
+  window.open(shareUrl, "_blank", "noopener,noreferrer");
 });
 
-// 日付変更で読込
-dateEl.addEventListener("change", ()=>{
-  const r = load().find(r=>r.date===dateEl.value);
-  weightEl.value = r? r.weight : "";
-});
-
-// ---- 履歴テーブル ----
+// 履歴テーブル
 function renderTable(){
   const arr = load();
   tbody.innerHTML = "";
@@ -182,142 +207,84 @@ function renderTable(){
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="pick" data-id="${r.id}" style="cursor:pointer">${r.date}</td>
-      <td class="right">${fmt(r.weight)}</td>
-      <td><button class="btn tinyDel" data-id="${r.id}" style="padding:6px 10px;color:var(--danger)">削除</button></td>
+      <td class="right">${Number(r.weight).toFixed(1)}</td>
+      <td><button class="btn" data-del="${r.id}" style="padding:6px 10px;color:var(--danger)">削除</button></td>
     `;
     tbody.appendChild(tr);
   }
 }
-tbody.addEventListener("click", (e)=>{
-  const del = e.target.closest(".tinyDel")?.dataset.id;
+tbody.addEventListener("click",(e)=>{
+  const del = e.target.closest("button")?.dataset?.del;
   if (del){
-    if (confirm("この記録を削除しますか？")){
-      const arr = load().filter(x=>x.id!==del);
-      save(arr); renderTable(); renderChart(); updateBadges();
+    if (confirm("削除しますか？")){
+      const arr = load().filter(x => x.id !== del);
+      save(arr); renderTable(); renderChart();
     }
     return;
   }
-  const pick = e.target.closest(".pick")?.dataset.id;
-  if (pick){
-    const r = load().find(x=>x.id===pick);
+  const id = e.target.closest(".pick")?.dataset?.id;
+  if (id){
+    const r = load().find(x => x.id === id);
     if (r){ dateEl.value = r.date; weightEl.value = r.weight; }
   }
 });
 
-// 全削除
-$("#delAllBtn").addEventListener("click", ()=>{
-  if (!confirm("全データを削除します。よろしいですか？")) return;
-  localStorage.removeItem("weights");
-  renderTable(); renderChart(); updateBadges();
-});
-
-// ---- グラフ（自前Canvas） ----
+// グラフ（直近30件）
 function renderChart(){
   const ctx = canvas.getContext("2d");
-  const w = canvas.clientWidth * devicePixelRatio;
-  const h = 120 * devicePixelRatio;
-  canvas.width = w; canvas.height = h;
-  ctx.clearRect(0,0,w,h);
+  const W = canvas.clientWidth * devicePixelRatio;
+  const H = 110 * devicePixelRatio;
+  canvas.width = W; canvas.height = H; ctx.clearRect(0,0,W,H);
 
-  const rec = load().slice().reverse(); // 古→新
-  const data = rec.slice(-60);          // 直近60件
+  const data = load().slice().reverse().slice(-30); // 古→新 で30件
   if (!data.length){
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--muted");
     ctx.font = `${12*devicePixelRatio}px system-ui`;
-    ctx.fillText("記録がありません", 8*devicePixelRatio, 64*devicePixelRatio);
-    statsEl.textContent = "平均: - / 最小: - / 最大: -";
+    ctx.fillText("記録がありません", 8*devicePixelRatio, 60*devicePixelRatio);
     return;
   }
 
-  const vals = data.map(d=>d.weight);
+  const vals = data.map(d=>Number(d.weight));
   const min = Math.min(...vals), max = Math.max(...vals);
-  const pad = 8*devicePixelRatio;
-  const xStep = (w - pad*2) / Math.max(1, data.length-1);
-  const yScale = (h - pad*2) / ((max-min)||1);
+  const pad = 8 * devicePixelRatio;
+  const xStep = (W - pad*2) / Math.max(1, data.length-1);
+  const yScale = (H - pad*2) / ((max - min) || 1);
 
-  // 平均ガイド
-  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
-  ctx.strokeStyle = "rgba(125,125,125,0.3)";
+  // 平均の点線
+  const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
+  ctx.strokeStyle = "rgba(125,125,125,.3)";
   ctx.setLineDash([4*devicePixelRatio,4*devicePixelRatio]);
   ctx.beginPath();
-  const yAvg = h - pad - (avg-min)*yScale;
-  ctx.moveTo(pad, yAvg); ctx.lineTo(w-pad, yAvg); ctx.stroke();
+  const yAvg = H - pad - (avg - min) * yScale;
+  ctx.moveTo(pad, yAvg); ctx.lineTo(W - pad, yAvg); ctx.stroke();
   ctx.setLineDash([]);
 
   // 折れ線
-  ctx.lineWidth = 2*devicePixelRatio;
+  ctx.lineWidth = 2 * devicePixelRatio;
   ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--accent");
   ctx.beginPath();
   data.forEach((d,i)=>{
-    const x = pad + i*xStep;
-    const y = h - pad - (d.weight-min)*yScale;
+    const x = pad + i * xStep;
+    const y = H - pad - (Number(d.weight) - min) * yScale;
     if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
   });
   ctx.stroke();
-
-  // 統計
-  statsEl.textContent = `平均: ${fmt(avg)} / 最小: ${fmt(min)} / 最大: ${fmt(max)}`;
 }
 
-// リサイズで再描画（向き変更対策）
-addEventListener("resize", renderChart);
-
-// ---- 7日変化＆X投稿 ----
-function lastNDaysChange(n=7){
-  const arr = load().slice().reverse(); // 古→新
-  if (arr.length===0) return null;
-  // n日以上前の最も近い記録と、最新
-  const latest = arr[arr.length-1];
-  const base   = arr.find(d=>{
-    const diff = (new Date(latest.date) - new Date(d.date)) / 86400000;
-    return diff >= n-0.5; // ゆるく7日前相当
-  }) || arr[0];
-  return { latest, base, diff: latest.weight - base.weight };
+// ヒント表示
+function hint(msg){
+  hintEl.textContent = msg;
+  setTimeout(()=> hintEl.textContent = "", 1200);
 }
 
-function updateBadges(){
-  const ch = lastNDaysChange(7);
-  if (!ch){ trendEl.textContent = "±0.0kg / 7日"; trendEl.className="badge"; return; }
-  const sign = ch.diff>0 ? "+" : "";
-  trendEl.textContent = `${sign}${fmt(ch.diff)}kg / 7日`;
-  trendEl.className = "badge " + (ch.diff<=0 ? "up" : "down");
-}
-
-// Xに投稿：intentを開く（本文は編集可能）
-$("#shareBtn").addEventListener("click", ()=>{
-  const arr = load().slice().sort((a,b)=> a.date<b.date?1:-1); // 新→旧
-  if (!arr.length){ hint("投稿するには、まず体重を保存してください。"); return; }
-  const today = arr[0];
-  const ch = lastNDaysChange(7);
-  const arrow = ch ? (ch.diff<0 ? "↘️" : (ch.diff>0 ? "↗️" : "➡️")) : "";
-  const change = ch ? `${ch.diff>0?"+":""}${fmt(ch.diff)}kg（7日）` : "±0.0kg（7日）";
-
-  // ここは公開URLに差し替え推奨（例: https://weight.kkpwebninja.com/）
-  const myUrl = "https://kkpwebninja.com/";
-  const text = `今日の体重 ${today.weight}kg（${today.date}） ${arrow}\n${change}\n#体重記録 #ダイエット`;
-  const url = "https://twitter.com/intent/tweet?text="+encodeURIComponent(text)+"&url="+encodeURIComponent(myUrl);
-  window.open(url, "_blank", "noopener,noreferrer");
-});
-
-// CSV出力
-$("#csvBtn").addEventListener("click", ()=>{
-  const arr = load().slice().sort((a,b)=> a.date<b.date? -1:1); // 古→新
-  if (!arr.length){ hint("エクスポートするデータがありません。"); return; }
-  const head = "date,weight\n";
-  const body = arr.map(r=>`${r.date},${r.weight}`).join("\n");
-  const blob = new Blob([head+body], {type:"text/csv;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "weights.csv"; a.click();
-  URL.revokeObjectURL(url);
-});
-
-// メッセージ表示
-function hint(msg){ hintEl.textContent = msg; setTimeout(()=> hintEl.textContent="", 1500); }
-
-// 初期描画
-function init(){ renderTable(); renderChart(); updateBadges(); }
+// 初期描画 & 画面回転対応 & 日付変更読み込み
+function init(){ renderTable(); renderChart(); }
 init();
+addEventListener("resize", renderChart);
+dateEl.addEventListener("change", ()=>{
+  const r = load().find(x => x.date === dateEl.value);
+  weightEl.value = r ? r.weight : "";
+});
 </script>
 </body>
 </html>
